@@ -16,3 +16,6 @@
 # SSK/TLS private key for connecting to the gelf-tcp server (path to PEM-encoded RSA private key)
 #sslClientKey = /etc/graylog/client.key
 
+# max queued messages (e.g. while gelf-tcp is disconnected), or -1 to remove the limit
+#maxQueueSize = -1
+

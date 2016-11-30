@@ -24,6 +24,7 @@ int main(int argc, char** argv)
     tcpClientConfig.gelfTcpUrl = QUrl(settings.value("gelfTcpUrl", "ssl://logs.apifocal.org:12201").toUrl());
     tcpClientConfig.tcpMessageSeparator = settings.value("nullMessageSeparator", true).toBool() ? '\0' : '\n';
     tcpClientConfig.reconnectDelayMillis = settings.value("reconnectDelayMillis", 5000).toInt();
+    tcpClientConfig.maxQueueSize = settings.value("maxQueueSize", -1).toInt();
 
     tcpClientConfig.clientCertificate = settings.value("sslClientCertificate", "/etc/graylog/client.crt").toString();
     tcpClientConfig.clientPrivkey = settings.value("sslClientKey", "/etc/graylog/client.key").toString();

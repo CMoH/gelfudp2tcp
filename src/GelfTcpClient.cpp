@@ -32,6 +32,10 @@ GelfTcpClient::~GelfTcpClient()
 
 bool GelfTcpClient::postMessage(const QByteArray& message)
 {
+    if (config.maxQueueSize > 0 && messageQueue.size() >= config.maxQueueSize) {
+        messageQueue.dequeue(); // drop older messages for newer ones
+        ++stats.lost;
+    }
     messageQueue.enqueue(message);
     ++stats.received;
 }

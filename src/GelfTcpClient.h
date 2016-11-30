@@ -31,6 +31,7 @@ public:
         QString clientPrivkey;
         QChar tcpMessageSeparator;
         int reconnectDelayMillis;
+        int maxQueueSize;
     };
 
 private:
