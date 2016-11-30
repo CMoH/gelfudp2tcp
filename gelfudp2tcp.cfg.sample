@@ -1,0 +1,18 @@
+# interface and port for local gelf-udp listener (only UDP supported)
+#gelfUdpUrl = udp://localhost:12201
+
+# remote gelf-tcp server URL (ssl or tcp)
+#gelfTcpUrl = ssl://logs.apifocal.org:12201
+
+# gelf-tcp message separator: null character (true), or newline (false)
+#nullMessageSeparator = true
+
+# gelf-tcp reconnection delay in millis
+#reconnectDelayMillis = 5000
+
+# SSK/TLS client certificate for connecting to the gelf-tcp server (path to PEM-encoded file containing the certificate on the first position)
+#sslClientCertificate = /etc/graylog/client.crt
+
+# SSK/TLS private key for connecting to the gelf-tcp server (path to PEM-encoded RSA private key)
+#sslClientKey = /etc/graylog/client.key
+

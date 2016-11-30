@@ -54,7 +54,7 @@ void GelfTcpClient::processQueue()
 
 void GelfTcpClient::connected()
 {
-    qDebug() << "connected to " << config.serverUrl.toString();
+    qDebug() << "connected to " << config.gelfTcpUrl.toString();
     ++stats.connects;
 
     queueTimerId = startTimer(0);
@@ -69,7 +69,7 @@ void GelfTcpClient::disconnected()
     killTimer(queueTimerId);
     queueTimerId = 0;
 
-    qDebug() << "disconnected from " << config.serverUrl.toString();
+    qDebug() << "disconnected from " << config.gelfTcpUrl.toString();
     ++stats.disconnects;
 
     if (socket != NULL) {
@@ -89,7 +89,7 @@ bool GelfTcpClient::isConnected() const
 
 void GelfTcpClient::connectToServer()
 {
-    const QUrl& url = config.serverUrl;
+    const QUrl& url = config.gelfTcpUrl;
 
     qDebug() << "connecting to " << url.toString();
     ++stats.connectAttempts;

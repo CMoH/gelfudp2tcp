@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QUrl>
 #include <QTimer>
+#include <QSettings>
 #include "GelfTcpClient.h"
 #include "GelfUdpServer.h"
 
@@ -9,20 +10,28 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
 
     // configuration
+    
+    QString configFile = "/etc/graylog/gelfudp2tcp.cfg";
+    if (argc == 2) {
+        configFile = argv[1];
+    }
+    
+    QSettings settings(configFile, QSettings::IniFormat);
 
-    QUrl listenUrl("udp://localhost:12201");
+    QUrl gelfUdpUrl(settings.value("gelfUdpUrl", "udp://localhost:12201").toUrl());
 
     GelfTcpClient::Config tcpClientConfig;
-    tcpClientConfig.serverUrl = QUrl("ssl://logs.apifocal.org:12201");
-    tcpClientConfig.clientCertificate = "/etc/graylog/client.crt";
-    tcpClientConfig.clientPrivkey = "/etc/graylog/client.key";
-    tcpClientConfig.tcpMessageSeparator = '\0';
-    tcpClientConfig.reconnectDelayMillis = 5000;
+    tcpClientConfig.gelfTcpUrl = QUrl(settings.value("gelfTcpUrl", "ssl://logs.apifocal.org:12201").toUrl());
+    tcpClientConfig.tcpMessageSeparator = settings.value("nullMessageSeparator", true).toBool() ? '\0' : '\n';
+    tcpClientConfig.reconnectDelayMillis = settings.value("reconnectDelayMillis", 5000).toInt();
+
+    tcpClientConfig.clientCertificate = settings.value("sslClientCertificate", "/etc/graylog/client.crt").toString();
+    tcpClientConfig.clientPrivkey = settings.value("sslClientKey", "/etc/graylog/client.key").toString();
 
     // prepare
     
     GelfTcpClient tcpClient(tcpClientConfig);
-    GelfUdpServer udpServer(listenUrl);
+    GelfUdpServer udpServer(gelfUdpUrl);
 
     QObject::connect(&udpServer, SIGNAL(messageReady(QByteArray)),
                      &tcpClient, SLOT(postMessage(QByteArray)));

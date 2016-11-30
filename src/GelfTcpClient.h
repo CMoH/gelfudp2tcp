@@ -26,7 +26,7 @@ public:
      * Server settings.
      */
     struct Config {
-        QUrl serverUrl;
+        QUrl gelfTcpUrl;
         QString clientCertificate;
         QString clientPrivkey;
         QChar tcpMessageSeparator;
