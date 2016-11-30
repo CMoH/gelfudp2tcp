@@ -35,7 +35,7 @@ public:
 
 private:
     Config config;
-    QIODevice* socket;
+    QTcpSocket* socket;
     QByteArray messageSeparatorBuf;
 
     QQueue<QByteArray> messageQueue;
@@ -62,6 +62,8 @@ public:
 
 public slots:
     void connectToServer();
+    void connectTimeout();
+    void disconnectFromServer();
 
     void connected();
     void disconnected();

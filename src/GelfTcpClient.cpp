@@ -24,9 +24,7 @@ GelfTcpClient::GelfTcpClient(const GelfTcpClient::Config& serverSettings)
 
 GelfTcpClient::~GelfTcpClient()
 {
-    if (socket != NULL) {
-        socket->close();
-    }
+    disconnectFromServer();
     if (queueTimerId != 0) {
         killTimer(queueTimerId);
     }
@@ -72,19 +70,13 @@ void GelfTcpClient::disconnected()
     qDebug() << "disconnected from " << config.gelfTcpUrl.toString();
     ++stats.disconnects;
 
-    if (socket != NULL) {
-        socket->close();
-        socket = NULL;
-    }
-
+    disconnectFromServer();
     QTimer::singleShot(config.reconnectDelayMillis, this, SLOT(connectToServer()));
 }
 
 bool GelfTcpClient::isConnected() const
 {
-    return socket != NULL
-           && socket->isOpen()
-           && socket->isWritable();
+    return socket != NULL && socket->state() == QTcpSocket::ConnectedState;
 }
 
 void GelfTcpClient::connectToServer()
@@ -125,7 +117,8 @@ void GelfTcpClient::connectToServer()
                 this, SLOT(disconnected()));
 
         sslSocket->setSslConfiguration(clientSslConfig);
-        
+
+        QTimer::singleShot(config.reconnectDelayMillis, this, SLOT(connectTimeout()));
         sslSocket->connectToHostEncrypted(url.host(), url.port());
 
     } else if (url.scheme() == "tcp") {
@@ -138,6 +131,7 @@ void GelfTcpClient::connectToServer()
         connect(tcpSocket, SIGNAL(disconnected()),
                 this, SLOT(disconnected()));
 
+        QTimer::singleShot(config.reconnectDelayMillis, this, SLOT(connectTimeout()));
         tcpSocket->connectToHost(url.host(), url.port());
 
     } else {
@@ -147,6 +141,23 @@ void GelfTcpClient::connectToServer()
 
     }
 
+}
+
+void GelfTcpClient::disconnectFromServer()
+{
+    if (socket != NULL) {
+        socket->disconnectFromHost();
+        socket = NULL;
+    }
+}
+
+void GelfTcpClient::connectTimeout()
+{
+    if (!isConnected()) {
+        qDebug() << "connect timeout";
+        disconnectFromServer();
+        QTimer::singleShot(config.reconnectDelayMillis, this, SLOT(connectToServer()));
+    }
 }
 
 void GelfTcpClient::dumpStats()
@@ -183,5 +194,4 @@ GelfTcpClient::Stats::Stats()
       sent(0),
       lost(0)
 {
-
 }
