@@ -16,3 +16,4 @@ add_executable(gelfudp2tcp ${gelfudp2tcp_SRCS})
 target_link_libraries(gelfudp2tcp Qt4::QtNetwork)
 
 install(TARGETS gelfudp2tcp RUNTIME DESTINATION bin)
+install(FILES gelfudp2tcp.cfg.sample DESTINATION etc/graylog)
