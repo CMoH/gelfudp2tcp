@@ -4,6 +4,7 @@
 #include <QSettings>
 #include "GelfTcpClient.h"
 #include "GelfUdpServer.h"
+#include "GelfChunkedMessageAssembler.h"
 
 int main(int argc, char** argv)
 {
@@ -33,8 +34,15 @@ int main(int argc, char** argv)
     
     GelfTcpClient tcpClient(tcpClientConfig);
     GelfUdpServer udpServer(gelfUdpUrl);
+    
+    GelfChunkedMessageAssembler chunkedMessageAssembler;
 
     QObject::connect(&udpServer, SIGNAL(messageReady(QByteArray)),
+                     &tcpClient, SLOT(postMessage(QByteArray)));
+    
+    QObject::connect(&udpServer, SIGNAL(messageChunkReceived(QByteArray)),
+                     &chunkedMessageAssembler, SLOT(processDatagram(QByteArray)));
+    QObject::connect(&chunkedMessageAssembler, SIGNAL(messageReady(QByteArray)),
                      &tcpClient, SLOT(postMessage(QByteArray)));
 
     // dump stats once in a while

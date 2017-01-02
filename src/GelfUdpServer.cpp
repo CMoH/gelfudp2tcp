@@ -8,9 +8,9 @@
 
 #include "GelfUdpServer.moc"
 
-const qint8 GelfUdpServer::compressedZlibMarker[2] = { 0x78, 0x9c };
-const qint8 GelfUdpServer::compressedGzipMarker[2] = { 0x1f, 0x8b };
-const qint8 GelfUdpServer::chunkedMarker[2]        = { 0x1e, 0x0f };
+const quint8 GelfUdpServer::compressedZlibMarker[2] = { 0x78, 0x9c };
+const quint8 GelfUdpServer::compressedGzipMarker[2] = { 0x1f, 0x8b };
+const quint8 GelfUdpServer::chunkedMarker[2]        = { 0x1e, 0x0f };
 
 GelfUdpServer::GelfUdpServer(const QUrl& url)
     : listenUrl(url)
@@ -59,7 +59,7 @@ void GelfUdpServer::processDatagram(const QByteArray& datagram)
         break;
     case Chunked:
 //         ++stats.receivedChunked;
-        handleMessageChunk(datagram);
+        emit messageChunkReceived(datagram);
         break;
     case Unsupported:
     default:
@@ -74,8 +74,8 @@ GelfUdpServer::GelfMessageType GelfUdpServer::decodeGelfMessageType(const QByteA
         return Unsupported;
     }
 
-    qint8 first = datagram.at(0);
-    qint8 second = datagram.at(1);
+    quint8 first = datagram.at(0);
+    quint8 second = datagram.at(1);
 
     if (first == compressedZlibMarker[0]) {
         // zlib's second byte is for flags and a checksum; it
@@ -110,7 +110,3 @@ QByteArray GelfUdpServer::uncompressZlib(const QByteArray& message)
     return qUncompress(message);
 }
 
-void GelfUdpServer::handleMessageChunk(const QByteArray& datagram)
-{
-    // TODO: handle message chunk
-}

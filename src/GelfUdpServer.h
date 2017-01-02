@@ -28,6 +28,7 @@ public:
 
 signals:
     void messageReady ( QByteArray gelfMessage );
+    void messageChunkReceived ( const QByteArray& datagram );
 
 private slots:
     void readDatagrams();
@@ -41,15 +42,15 @@ private:
         Uncompressed,
         Unsupported
     };
-    static const qint8 compressedZlibMarker[2];
-    static const qint8 compressedGzipMarker[2];
-    static const qint8 chunkedMarker[2];
+    static const quint8 compressedZlibMarker[2];
+    static const quint8 compressedGzipMarker[2];
+    static const quint8 chunkedMarker[2];
 
     static GelfMessageType decodeGelfMessageType ( const QByteArray& datagram );
-    static QByteArray uncompressGzip(const QByteArray& message );
-    static QByteArray uncompressZlib(const QByteArray& message );
+    static QByteArray uncompressGzip ( const QByteArray& message );
+    static QByteArray uncompressZlib ( const QByteArray& message );
 
-    void handleMessageChunk ( const QByteArray & datagram );
+    void handleMessageChunk ( const QByteArray& datagram );
 
 };
 
