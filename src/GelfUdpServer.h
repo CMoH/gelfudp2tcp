@@ -47,11 +47,6 @@ private:
     static const quint8 chunkedMarker[2];
 
     static GelfMessageType decodeGelfMessageType ( const QByteArray& datagram );
-    static QByteArray uncompressGzip ( const QByteArray& message );
-    static QByteArray uncompressZlib ( const QByteArray& message );
-
-    void handleMessageChunk ( const QByteArray& datagram );
-
 };
 
 #endif // GELFUDPSERVER_H

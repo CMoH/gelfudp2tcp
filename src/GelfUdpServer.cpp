@@ -5,8 +5,7 @@
 
 #include "GelfUdpServer.h"
 #include <QHostInfo>
-
-#include "GelfUdpServer.moc"
+#include "Decompress.h"
 
 const quint8 GelfUdpServer::compressedZlibMarker[2] = { 0x78, 0x9c };
 const quint8 GelfUdpServer::compressedGzipMarker[2] = { 0x1f, 0x8b };
@@ -46,12 +45,23 @@ void GelfUdpServer::processDatagram(const QByteArray& datagram)
     switch (decodeGelfMessageType(datagram)) {
     case CompressedGzip:
 //         ++stats.receivedCompressedGzip;
-        emit messageReady(uncompressGzip(datagram));
-        break;
+    {
+        QByteArray uncompressed = uncompressGzip(datagram);
+        if (!uncompressed.isEmpty()) {
+            emit messageReady(uncompressed);
+        }
+    }
+
+    break;
     case CompressedZlib:
 //         ++stats.receivedCompressedZlib;
-        emit messageReady(uncompressZlib(datagram));
-        break;
+    {
+        QByteArray uncompressed = uncompressZlib(datagram);
+        if (!uncompressed.isEmpty()) {
+            emit messageReady(uncompressed);
+        }
+    }
+    break;
     case Uncompressed:
 //         ++stats.receivedUncompressed;
         // single non-encoded json message
@@ -99,14 +109,5 @@ GelfUdpServer::GelfMessageType GelfUdpServer::decodeGelfMessageType(const QByteA
     return Unsupported;
 }
 
-QByteArray GelfUdpServer::uncompressGzip(const QByteArray& message)
-{
-    // TODO: this seems to not work out of the box - search internet for workaround
-    return qUncompress(message);
-}
 
-QByteArray GelfUdpServer::uncompressZlib(const QByteArray& message)
-{
-    return qUncompress(message);
-}
-
+#include "GelfUdpServer.moc"
